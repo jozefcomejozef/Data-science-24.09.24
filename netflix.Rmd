@@ -1,0 +1,221 @@
+---
+title: "Netflix Data Analysis"
+output: ioslides_presentation
+date: "2024-09-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(readr)
+library(tidyverse)
+df_netflix <- read_csv("Netflix_Revenue.csv")
+
+# Disattivare la notazione scientifica
+options(scipen = 999)
+```
+
+## NETFLIX DATA ANALYSIS
+### Introduzione
+#### Questa analisi mira ad esporre quanto segue:
+1. Andamento del fatturato globale di Netflix e degli abbonamenti nelle diverse regioni
+2. Mostrare i ricavi per utente (RPU) nelle diverse regioni.
+3. Confrontare le prestazioni nazionali e internazionali nel tempo
+4. Per mostrare gli utenti globali nel tempo
+
+
+## Data Overview
+
+Il dataset in questione (reperito su Kaggle) fornisce dati di diverso tipo sull'andamento dell'azienda Netflix nel corso degli anni, prendendo in considerazione 4 regioni specifiche:
+
+UCAN : Stati Uniti e Canada
+EMEA : Europa, Medio Oriente e Africa
+APAC : Asia-Pacifico
+LATM : America Latina
+
+
+## ANALISI DEI TREND - Fatturato globale nel tempo
+
+```{r echo = FALSE}
+# Convertire la data in Date type
+df_netflix$Date <- as.Date(df_netflix$Date, format = "%d-%m-%Y")
+```
+```{r, echo=FALSE}
+# Re-plotting del grafico delle entrate per la diapositiva con la spiegazione
+ggplot(df_netflix, aes(x=Date, y=`Global Revenue`)) +
+  geom_bar(stat="identity", fill="blue", alpha=0.5) +  # Grafico a barre con barre semitrasparenti
+  geom_line(color="red", linewidth=1) +                    # Linea di tendenza
+  labs(title="Fatturato globale nel tempo", x="Data", y="Fatturato globale") +
+  theme_minimal()
+```
+
+## Analisi delle tendenze - Fatturato globale nel tempo
+
+Osservazioni chiave:
+
+1. L'aumento costante del fatturato globale nel corso degli anni indica una forte crescita.
+2. Esiste una traiettoria costante verso l'alto delle entrate annuali.
+
+Linea di tendenza:
+
+1. La linea di tendenza rossa sovrapposta alle barre evidenzia una graduale accelerazione dei ricavi, particolarmente evidente a partire dal 2016 circa.
+2. I dati più recenti, in particolare quelli relativi al periodo 2021-2023, indicano che il tasso di aumento potrebbe stabilizzarsi.
+
+## ANALISI DEL TREND - Entrate regionali nel tempo
+
+```{r echo=FALSE}
+ggplot(df_netflix, aes(x=Date)) +
+  geom_line(data = df_netflix %>% filter(!is.na(`UACN Revenue`)), aes(y=`UACN Revenue`, color="UACN")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`EMEA Revenue`)), aes(y=`EMEA Revenue`, color="EMEA")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`LATM Revenue`)), aes(y=`LATM Revenue`, color="LATM")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`APAC Revenue`)), aes(y=`APAC Revenue`, color="APAC")) +
+  labs(title="Tendenze dei ricavi regionali", x="Data", y="Ricavi") +
+  theme_minimal()
+
+```
+
+## ANALISI DEL TREND - Entrate regionali nel tempo
+
+Questo grafico presenta l'andamento dei ricavi in quattro regioni: APAC, EMEA, LATM e UACN dal 2020 al 2023.
+
+1. L'APAC è in testa alla crescita dei ricavi, seguita dall'EMEA.
+2. LATM e UACN crescono, ma a un ritmo più lento, il che potrebbe suggerire una saturazione del mercato o altre sfide regionali.
+
+Le tendenze regionali dei ricavi evidenziano la crescita dinamica dell'APAC e dell'EMEA, sottolineando l'importanza di questi mercati nelle strategie globali dei ricavi.
+
+## ANALISI DEL TREND - Abbonati regionali nel tempo
+
+```{r echo=FALSE}
+ggplot(df_netflix, aes(x=Date)) +
+  geom_line(data = df_netflix %>% filter(!is.na(`UACN Members`)), aes(y=`UACN Members`, color="UACN")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`EMEA  Members`)), aes(y=`EMEA  Members`, color="EMEA")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`LATM Members`)), aes(y=`LATM Members`, color="LATM")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`APAC Members`)), aes(y=`APAC Members`, color="APAC")) +
+  labs(title="Tendenze abbonamenti regionali", x="Data", y="Abbonati") +
+  theme_minimal()
+```
+  
+## ANALISI DEL TREND - Abbonati regionali nel tempo
+
+Questo grafico illustra l'andamento degli abbonati nelle regioni prese in considerazione.
+
+1. L'area EMEA è in testa alla crescita degli abbonamenti, indicando una forte importanza sul mercato.
+2. L'UACN segue a ruota, testimoniando anche qua un grande apprezzamento per il servizio.
+3. La LATM e l'APAC sono in costante crescita, ma richiedono sforzi mirati per aumentare il numero dei soci.
+
+I trend regionali evidenziano il forte potenziale di crescita di EMEA e UACN, sottolineando la loro importanza nelle strategie di mercato.
+Il monitoraggio continuo e le iniziative mirate in LATM e APAC potrebbero contribuire a migliorare la crescita associativa.
+
+
+## ANALISI DEI TREND - Ricavi per utente (RPU per regione)
+
+```{r echo=FALSE}
+# Andamento della RPU per regione, esclusi i valori NA
+ggplot(df_netflix, aes(x=Date)) +
+  geom_line(data = df_netflix %>% filter(!is.na(`UACN RPU`)), aes(y=`UACN RPU`, color="UACN")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`EMEA RPU`)), aes(y=`EMEA RPU`, color="EMEA")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`LATM  RPU`)), aes(y=`LATM  RPU`, color="LATM")) +
+  geom_line(data = df_netflix %>% filter(!is.na(`APAC  RPU`)), aes(y=`APAC  RPU`, color="APAC")) +
+  labs(title="Ricavi per utente (RPU) per regione", x="Data", y="RPU") +
+  theme_minimal()
+```
+
+## ANALISI DEI TREND - Ricavi per utente (RPU per regione)
+
+
+Questo grafico mostra l'andamento dei ricavi per utente (RPU) in quattro regioni: APAC, EMEA, LATM e UACN dal 2020 al 2023.
+
+1. L'UACN ha il più alto RPU, che riflette le forti condizioni di mercato e le efficaci strategie di prezzo.
+2. Segue l'area EMEA, con una performance più variabile, che suggerisce un potenziale di ulteriore crescita.
+3. Il LATM richiede attenzione a causa del calo della RPU, mentre il LATM mostra un miglioramento positivo, che potrebbe indicare opportunità emergenti.
+
+Le tendenze RPU evidenziano l'efficacia delle strategie di ricavo in EMEA e UACN, mentre indicano aree di miglioramento in LATM. La comprensione di queste dinamiche può essere alla base di iniziative mirate per migliorare la RPU in tutte le regioni.
+
+## ANALISI DEI TREND - Ricavi nazionali e internazionali
+
+```{r echo=FALSE}
+ggplot(df_netflix %>% filter(!is.na(`Domestic Revenue`) & !is.na(`International Revenue`)), aes(x=Date)) +
+  geom_bar(aes(y=`Domestic Revenue`, fill="Nazionale"), stat="identity", alpha=0.5) + # Grafico a barre per le entrate nazionali
+  geom_bar(aes(y=`International Revenue`, fill="Internazionale"), stat="identity", alpha=0.5) + # Grafico per le entrate internazionali
+  geom_line(aes(y=`Domestic Revenue`, color="Nazionale"), linewidth=1) +  # Linea di tendenza per le entrate nazionali
+  geom_line(aes(y=`International Revenue`, color="Internazionale"), linewidth=1) + # Linea di tendenza dei ricavi internazionali
+  labs(title="Ricavi nazionali e internazionali", x="Data", y="Ricavi") +
+  scale_fill_manual(values=c("Nazionale"="blue", "Internazionale"="lightblue")) +  # Impostazione dei colori delle barre
+  scale_color_manual(values=c("Nazionale"="blue", "Internazionale"="red")) +      # Impostare i colori delle linee
+  theme_minimal()
+
+```
+
+## ANALISI DEI TREND - Ricavi nazionali e internazionali
+
+Questo grafico confronta i ricavi nazionali e internazionali dal 2012 al 2023, evidenziando le tendenze di crescita di entrambi i segmenti.
+
+1. Mentre i ricavi nazionali partono da un livello più alto, i ricavi internazionali crescono a un ritmo più veloce, suggerendo una crescente importanza nei mercati globali.
+2. Il divario tra i ricavi nazionali e quelli internazionali si sta riducendo, il che indica uno spostamento dell'attenzione o degli investimenti nella crescita internazionale.
+
+Le tendenze mostrano un panorama dinamico in cui i ricavi internazionali sono sempre più vitali. Le organizzazioni devono prendere in considerazione strategie per sfruttare questa crescita, mantenendo al contempo solide prestazioni sul mercato nazionale.
+
+## ANALISI DEL TREND - Soci nazionali e soci internazionali
+
+```{r echo=FALSE}
+ggplot(df_netflix %>% filter(!is.na(`Domestic Members`) & !is.na(`International Members`)), aes(x=Date)) +
+  geom_bar(aes(y=`Domestic Members`, fill="Nazionale"), stat="identity", position="dodge", alpha=0.5) + #soci nazionali
+  geom_bar(aes(y=`International Members`, fill="Internazionale"), stat="identity", position="dodge", alpha=0.5) + #Membri internazionali
+  geom_line(aes(y=`Domestic Members`, color="Nazionale"),  linewidth=1) +  # Linea di tendenza per i membri nazionali
+  geom_line(aes(y=`International Members`, color="Internazionale"), linewidth=1) + # Linea di tendenza per i soci internazionali
+  labs(title="Abbonati nazionali e internazionali", x="Data", y="Abbonamenti") +
+  scale_fill_manual(values=c("Nazionale"="blue", "Internazionale"="lightblue")) +  # Impostazione dei colori delle barre
+  scale_color_manual(values=c("Nazionale"="blue", "Internazionale"="red")) +      # Impostare i colori delle linee
+  theme_minimal()
+
+```
+
+## ANALISI DEL TREND - Abbonati nazionali e internazionali
+
+Questo grafico confronta le tendenze degli abbonati nazionali e internazionali dal 2012 al 2023, evidenziando la crescita di entrambi i segmenti.
+
+1. L'affiliazione nazionale mostra una performance significativamente più forte, evidenziando l'importanza del mercato locale.
+2. L'affiliazione internazionale, pur essendo in crescita, non tiene il passo con la crescita nazionale, il che suggerisce potenziali sfide riguardo all'espansione nel mercato internazionale.
+
+
+## ANALISI DEI TREND - Utenti globali di Netflix nel tempo
+
+```{r echo=FALSE}
+ggplot(df_netflix %>% filter(!is.na(`Netflix Global Users`)), aes(x=Date)) +
+  geom_bar(aes(y=`Netflix Global Users`), stat="identity", fill="lightblue", alpha=0.6) + # Grafico a barre con colore blu chiaro
+  geom_line(aes(y=`Netflix Global Users`), color="blue",  linewidth=1) +  # Linea di tendenza in blu
+  labs(title="Utenti globali di Netflix nel tempo", x="Data", y="Utenti globali") +
+  theme_minimal()
+```
+
+## ANALISI DEI TREND - Utenti globali di Netflix nel tempo
+
+Questo grafico illustra la crescita degli utenti globali di Netflix dal 2012 al 2023, evidenziando le tendenze significative nell'acquisizione di utenti.
+
+- Crescita iniziale (2012-2016): si osserva un aumento costante degli utenti globali
+- Crescita rapida (2016-2018): si verifica un picco notevole, raggiungendo i massimi livelli di utenza.
+- Declino successivo al picco (2018-2020): dopo il picco, si assiste a un forte calo del numero di utenti.
+- Stabilizzazione (2020-2023): il trend si stabilizza con un graduale aumento del numero di utenti, suggerendo una fase di recupero.
+
+La traiettoria di crescita degli utenti di Netflix sottolinea l'importanza di iniziative strategiche per l'acquisizione e la fidelizzazione degli utenti. Il declino e la successiva stabilizzazione suggeriscono la necessità di un'innovazione continua e di una risposta alle dinamiche del mercato per mantenere la crescita degli utenti.
+
+
+
+## Approfondimenti chiave
+
+- Forte crescita dei ricavi e dei soci: Sia i ricavi che i soci nazionali e internazionali hanno registrato una crescita significativa nel corso degli anni, con i mercati nazionali generalmente in testa per numero di iscritti.
+
+- Variazioni regionali:
+    - Le regioni UACN ed EMEA registrano una robusta crescita dei ricavi e dei soci, indicando un forte potenziale di mercato.
+    - Il LATM mostra tassi di crescita più lenti, suggerendo sfide che potrebbero dover essere affrontate.
+    - L'APAC registra una crescita stabile ma modesta, evidenziando la necessità di strategie mirate per aumentare l'engagement.
+
+- Dinamiche interne e internazionali:
+    - I ricavi e i soci nazionali sono forti, ma i mercati internazionali stanno recuperando terreno, soprattutto per quanto riguarda l'andamento dei ricavi.
+    - Il divario si sta riducendo, suggerendo che le aziende potrebbero trarre vantaggio dal concentrarsi sulle strategie di espansione internazionale.
+
+## Conclusione
+
+Nel complesso, i dati illustrano un panorama dinamico di crescita e di sfide in diversi mercati e regioni. Netflix deve rimanere agile e reattiva ai cambiamenti delle condizioni per sfruttare le opportunità e affrontare i potenziali cali del coinvolgimento degli utenti e dei flussi di entrate.
+
+## Grazie!
+
